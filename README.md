@@ -28,14 +28,15 @@ Below code and corresponding results show that `RcppLbfgsblaze` provides a fast 
     source(system.file("examples", "logisticBenchmark.R", package = "RcppLbfgsblaze"))
     # logistic model benchmark for n = 10000, p = 100 and non-zero p = 6: nrep = 20
     # Unit: milliseconds
-    #                  expr      min        lq      mean    median        uq      max neval
-    #               glm.fit 292.2610 297.44375 328.12950 305.31330 354.25390 481.3507    20
-    #                 optim  98.3145 104.73180 109.80494 108.17890 111.60800 143.1004    20
-    #                 lbfgs 187.2514 196.62335 208.11745 202.21505 210.09110 286.0543    20
-    #             lbfgs_cpp  43.6178  45.01485  46.79239  45.39475  46.89445  56.0291    20
-    #  RcppNumerical_fastLR   9.9168  11.00495  11.41928  11.23135  11.59345  15.3489    20
-    #         RcppNumerical   4.1587   4.35205   4.85189   4.85275   5.27710   5.5805    20
-    #                glmnet  37.6238  39.39010  41.75343  41.32335  42.96875  49.1623    20
+    #                  expr        min         lq       mean     median        uq      max neval
+    #               glm.fit 255.809901 261.045151 276.380391 264.622901 281.89935 340.9089    20
+    #                 optim  65.574401  71.753300  79.942356  75.657851  80.75455 142.3766    20
+    #                 lbfgs 209.106701 223.820001 241.420176 230.909851 243.48555 317.1975    20
+    #             lbfgs_cpp  49.506900  51.013250  53.210191  52.398551  54.82675  59.0651    20
+    #  RcppNumerical_fastLR   8.894501   9.427351  10.582966   9.966651  10.32275  23.5838    20
+    #         RcppNumerical   3.898502   4.106651   4.734516   4.494201   5.20320   6.6632    20
+    #                glmnet  33.552301  34.844251  36.574931  36.013801  37.57470  43.2909    20
+    #        RcppLbfgsBlaze  10.779001  11.156951  11.804186  11.856651  12.10440  14.5253    20
     ```
 
 Above results are run on my desktop (i9-13900K, DDR5-4000 128GB).
