@@ -23,6 +23,7 @@ exprs <- list()
 
 # default version used in lm()
 exprs$glm.fit <- expression(stats::glm.fit(X1, y, family = binomial()))
+exprs$glmnet <- expression(glmnet(X, y, lambda = 0, family = "binomial", standardize=FALSE))
 exprs$optim <- expression(optim(rep(0, ncol(X1)), likelihood, gradient, X = X1, y = y, method = "L-BFGS"))
 exprs$lbfgs <- expression(lbfgs(
   likelihood, gradient, rep(0, ncol(X1)), X = X1, y = y, m = 8, past = 4,
@@ -36,7 +37,6 @@ exprs$lbfgs_cpp <- expression(lbfgs(
 ))
 exprs$RcppNumerical_fastLR <- expression(fastLR(X1, as.numeric(y)))
 exprs$RcppNumerical <- expression(rcpp_numerical_logistic(rep(0, ncol(X1)), X1, as.numeric(y)))
-exprs$glmnet <- expression(glmnet(X, y, lambda = 0, family = "binomial", standardize=FALSE))
 exprs$RcppLbfgsBlaze <- expression(fastLogisticModel(X1, as.numeric(y)))
 
 rcppNumericalLogisticCode <- '
