@@ -13,6 +13,7 @@ suppressPackageStartupMessages({
   require(RcppBlaze)
   require(glmnet)
   require(lbfgs)
+  require(RcppArmadillo)
   require(RcppNumerical)
 })
 

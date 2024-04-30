@@ -50,7 +50,7 @@ struct lbfgs_parameter_t {
      *  parameter is zero, the library does not perform the delta-based
      *  convergence test. The default value is 3.
      */
-    int past = 4;
+    std::size_t past = 4;
 
     /**
      * Delta for convergence test.
@@ -150,12 +150,8 @@ enum {
     LBFGSERR_UNKNOWNERROR = -1024,
     /** Invalid number of variables specified. */
     LBFGSERR_INVALID_N,
-    /** Invalid parameter lbfgs_parameter_t::mem_size specified. */
-    LBFGSERR_INVALID_MEMSIZE,
     /** Invalid parameter lbfgs_parameter_t::g_epsilon specified. */
     LBFGSERR_INVALID_GEPSILON,
-    /** Invalid parameter lbfgs_parameter_t::past specified. */
-    LBFGSERR_INVALID_TESTPERIOD,
     /** Invalid parameter lbfgs_parameter_t::delta specified. */
     LBFGSERR_INVALID_DELTA,
     /** Invalid parameter lbfgs_parameter_t::min_step specified. */
@@ -417,17 +413,14 @@ inline int lbfgs_optimize(BlazeVector &x, double &f, lbfgs_evaluate_t proc_evalu
     const std::size_t n = x.size();
     const std::size_t padded_size = blaze::nextMultiple<std::size_t>(n, blaze::SIMDTrait<double>::size);
     const std::size_t past_fx_padded_size =
-        blaze::nextMultiple<std::size_t>((std::size_t)param.past, blaze::SIMDTrait<double>::size);
+        blaze::nextMultiple<std::size_t>(param.past, blaze::SIMDTrait<double>::size);
     const std::size_t memory_padded_size =
-        blaze::nextMultiple<std::size_t>((std::size_t)param.mem_size, blaze::SIMDTrait<double>::size);
-    const std::size_t m = (std::size_t)param.mem_size;
+        blaze::nextMultiple<std::size_t>(param.mem_size, blaze::SIMDTrait<double>::size);
+    const std::size_t m = param.mem_size;
 
     /* Check the input parameters for errors. */
     if (param.g_epsilon < 0.0) {
         return LBFGSERR_INVALID_GEPSILON;
-    }
-    if (param.past < 0) {
-        return LBFGSERR_INVALID_TESTPERIOD;
     }
     if (param.delta < 0.0) {
         return LBFGSERR_INVALID_DELTA;
@@ -690,14 +683,8 @@ inline const char *lbfgs_strerror(const int err) {
         case LBFGSERR_INVALID_N:
             return "Invalid number of variables specified.";
 
-        case LBFGSERR_INVALID_MEMSIZE:
-            return "Invalid parameter lbfgs_parameter_t::mem_size specified.";
-
         case LBFGSERR_INVALID_GEPSILON:
             return "Invalid parameter lbfgs_parameter_t::g_epsilon specified.";
-
-        case LBFGSERR_INVALID_TESTPERIOD:
-            return "Invalid parameter lbfgs_parameter_t::past specified.";
 
         case LBFGSERR_INVALID_DELTA:
             return "Invalid parameter lbfgs_parameter_t::delta specified.";
