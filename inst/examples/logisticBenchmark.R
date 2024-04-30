@@ -11,6 +11,7 @@ suppressPackageStartupMessages({
   require(stats)
   require(microbenchmark)
   require(RcppBlaze)
+  require(RcppLbfgsBlaze)
   require(glmnet)
   require(lbfgs)
   require(RcppArmadillo)
@@ -36,7 +37,7 @@ exprs$lbfgs_cpp <- expression(lbfgs(
 exprs$RcppNumerical_fastLR <- expression(fastLR(X1, as.numeric(y)))
 exprs$RcppNumerical <- expression(rcpp_numerical_logistic(rep(0, ncol(X1)), X1, as.numeric(y)))
 exprs$glmnet <- expression(glmnet(X, y, lambda = 0, family = "binomial", standardize=FALSE))
-# exprs$RcppLbfgsBlaze <- expression(fastLogisticModel(X1, as.numeric(y)))
+exprs$RcppLbfgsBlaze <- expression(fastLogisticModel(X1, as.numeric(y)))
 
 rcppNumericalLogisticCode <- '
 // [[Rcpp::depends(RcppEigen)]]

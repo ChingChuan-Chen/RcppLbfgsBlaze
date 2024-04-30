@@ -11,49 +11,36 @@
 #include <lbfgs.h>
 using Rcpp::_;
 
-class LogisticModelFitting {
-public:
-  blaze::DynamicMatrix<double> X;
-  blaze::DynamicVector<double> y;
+struct LogisticData {
+  size_t n;
+  size_t n_padded;
+  size_t p;
+  size_t p_padded;
+  std::unique_ptr<double[], blaze::Deallocate> X_Data;
+  std::unique_ptr<double[], blaze::Deallocate> Y_Data;
 
-  LogisticModelFitting(Rcpp::NumericMatrix X_, Rcpp::NumericVector y_) {
-    X = Rcpp::as<blaze::DynamicMatrix<double>>(X_);
-    y = Rcpp::as<blaze::DynamicVector<double>>(y_);
-  }
-
-  Rcpp::List run(Rcpp::NumericVector coef_) {
-    // initialize coef
-    int p = coef_.size();
-    std::size_t coef_padded_size = blaze::nextMultiple<std::size_t>((size_t)p, blaze::SIMDTrait<double>::size);
-    std::unique_ptr<double[], blaze::Deallocate> data(blaze::allocate<double>(coef_padded_size));
-    lbfgs::BlazeVector coef(data.get(), (size_t)p, coef_padded_size);
-    RcppBlaze::copyToCustomVector(coef_, coef);
-
-    // Set the minimization parameters
-    lbfgs::lbfgs_parameter_t params;
-    params.g_epsilon = 1.0e-5;
-    params.delta = 1.0e-5;
-
-    // Start minimization
-    double final_value = 0.0;
-    // int result = lbfgs::lbfgs_optimize(coef, final_value, cost_function, nullptr, nullptr, this, params);
-
-    return Rcpp::List::create(
-      _["value"] = final_value,
-      _["par"] = coef,
-      _["lbfgs_result_code"] = 0 // result
-    );
-  }
-
-private:
-  double cost_function(void *instance, const lbfgs::BlazeVector &coef, lbfgs::BlazeVector &grad) {
-    blaze::DynamicVector<double> eta = blaze::max(blaze::min(X * coef, 30.0), -30.0);
-    blaze::DynamicVector<double> phat = 1/(1 + blaze::exp(-eta));
-    double fx = -blaze::dot(eta, y) - blaze::sum(blaze::log(1 - phat));
-    grad = blaze::trans(X) * (phat - y);
-    return fx;
-  }
+  LogisticData(
+    size_t n_, size_t n_padded_, size_t p_, size_t p_padded_,
+    std::unique_ptr<double[], blaze::Deallocate> X_ptr,
+    std::unique_ptr<double[], blaze::Deallocate> y_ptr
+  ): n(n_), n_padded(n_padded_), p(p_), p_padded(p_padded_),
+    X_Data(std::move(X_ptr)), Y_Data(std::move(y_ptr)) {}
 };
+
+static double getLogisticLikelihoodGrad(
+  void *instance,
+  const lbfgs::BlazeVector &coef,
+  lbfgs::BlazeVector &grad
+) {
+  LogisticData *logisticData = reinterpret_cast<LogisticData*>(instance);
+  lbfgs::BlazeMatrix X((logisticData->X_Data).get(), logisticData->n, logisticData->p, logisticData->n_padded);
+  lbfgs::BlazeVector y((logisticData->Y_Data).get(), logisticData->n, logisticData->n_padded);
+  blaze::DynamicVector<double> eta = blaze::max(blaze::min(X * coef, 30.0), -30.0);
+  blaze::DynamicVector<double> phat = 1/(1 + blaze::exp(-eta));
+  double fx = -blaze::dot(eta, y) - blaze::sum(blaze::log(1 - phat));
+  grad = blaze::trans(X) * (phat - y);
+  return fx;
+}
 
 //' Logistic Regression Fitting Using L-BFGS Algorithm
 //'
@@ -71,9 +58,41 @@ private:
 //' fit <- fastLogisticModel(x, y)
 //' @export
 // [[Rcpp::export]]
-Rcpp::List fastLogisticModel(Rcpp::NumericMatrix X, Rcpp::NumericVector y) {
-  LogisticModelFitting lm(X, y);
-  Rcpp::NumericVector coef(X.ncol());
-  std::fill(coef.begin(), coef.end(), 0.0);
-  return lm.run(coef);
+Rcpp::List fastLogisticModel(Rcpp::NumericMatrix X_, Rcpp::NumericVector y_) {
+  // initialize coef
+  size_t p = (size_t) X_.ncol();
+  std::size_t p_padded = blaze::nextMultiple<std::size_t>(p, blaze::SIMDTrait<double>::size);
+  std::unique_ptr<double[], blaze::Deallocate> coef_data(blaze::allocate<double>(p_padded));
+  lbfgs::BlazeVector coef(coef_data.get(), p, p_padded);
+  coef = 0.0;
+
+  // allocate memory for y
+  size_t n = (size_t) y_.size();
+  std::size_t n_padded = blaze::nextMultiple<std::size_t>(n, blaze::SIMDTrait<double>::size);
+  std::unique_ptr<double[], blaze::Deallocate> y_data(blaze::allocate<double>(n_padded));
+  lbfgs::BlazeVector y(y_data.get(), n, n_padded);
+  RcppBlaze::copyToCustomVector(y_, y);
+
+  // allocate memory for X
+  std::unique_ptr<double[], blaze::Deallocate> x_data(blaze::allocate<double>(n_padded * p));
+  lbfgs::BlazeMatrix X(x_data.get(), n, p, n_padded);
+  RcppBlaze::copyToCustomMatrix(X_, X);
+
+  // Set the minimization parameters
+  lbfgs::lbfgs_parameter_t params;
+  params.g_epsilon = 1.0e-5;
+  params.delta = 1.0e-5;
+
+  // get logistic data
+  LogisticData ld(n, n_padded, p, p_padded, std::move(x_data), std::move(y_data));
+
+  // Start minimization
+  double final_value = 0.0;
+  int result = lbfgs::lbfgs_optimize(coef, final_value, getLogisticLikelihoodGrad, nullptr, nullptr, &ld, params);
+
+  return Rcpp::List::create(
+    _["value"] = final_value,
+    _["par"] = coef,
+    _["lbfgs_result_code"] = result
+  );
 }

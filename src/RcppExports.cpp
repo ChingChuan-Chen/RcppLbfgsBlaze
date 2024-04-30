@@ -12,14 +12,14 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // fastLogisticModel
-Rcpp::List fastLogisticModel(Rcpp::NumericMatrix X, Rcpp::NumericVector y);
-RcppExport SEXP _RcppLbfgsBlaze_fastLogisticModel(SEXP XSEXP, SEXP ySEXP) {
+Rcpp::List fastLogisticModel(Rcpp::NumericMatrix X_, Rcpp::NumericVector y_);
+RcppExport SEXP _RcppLbfgsBlaze_fastLogisticModel(SEXP X_SEXP, SEXP y_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type X(XSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(fastLogisticModel(X, y));
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type X_(X_SEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y_(y_SEXP);
+    rcpp_result_gen = Rcpp::wrap(fastLogisticModel(X_, y_));
     return rcpp_result_gen;
 END_RCPP
 }

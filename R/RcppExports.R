@@ -16,7 +16,7 @@
 #'
 #' fit <- fastLogisticModel(x, y)
 #' @export
-fastLogisticModel <- function(X, y) {
-    .Call(`_RcppLbfgsBlaze_fastLogisticModel`, X, y)
+fastLogisticModel <- function(X_, y_) {
+    .Call(`_RcppLbfgsBlaze_fastLogisticModel`, X_, y_)
 }
 
