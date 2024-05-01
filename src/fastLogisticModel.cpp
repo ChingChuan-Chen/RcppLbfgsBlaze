@@ -80,7 +80,6 @@ Rcpp::List fastLogisticModel(Rcpp::NumericMatrix X, Rcpp::NumericVector y) {
 
   // Set the minimization parameters
   lbfgs::lbfgs_parameter_t params;
-  params.g_epsilon = 1.0e-5;
   params.delta = 1.0e-5;
 
   // get logistic data

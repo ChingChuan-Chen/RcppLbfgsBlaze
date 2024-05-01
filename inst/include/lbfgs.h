@@ -25,10 +25,10 @@ struct lbfgs_parameter_t {
    *  The L-BFGS routine stores the computation results of previous m
    *  iterations to approximate the inverse hessian matrix of the current
    *  iteration. This parameter controls the size of the limited memories
-   *  (corrections). The default value is 8. Values less than 3 are
+   *  (corrections). The default value is 6. Values less than 3 are
    *  not recommended. Large values will result in excessive computing time.
    */
-  std::size_t mem_size = 8;
+  std::size_t mem_size = 6UL;
 
   /**
    * Epsilon for grad convergence test. DO NOT USE IT in non-smooth cases!
@@ -50,7 +50,7 @@ struct lbfgs_parameter_t {
    *  parameter is zero, the library does not perform the delta-based
    *  convergence test. The default value is 3.
    */
-  std::size_t past = 4;
+  std::size_t past = 3UL;
 
   /**
    * Delta for convergence test.
@@ -131,7 +131,7 @@ struct lbfgs_parameter_t {
    *  This parameter must be a positive value set by a client program to
    *  estimate the machine precision.
    */
-  double machine_prec = 1.0e-16;
+  double machine_prec = 2.5e-16;
 };
 
 /**
@@ -458,7 +458,7 @@ inline int lbfgs_optimize(BlazeVector &x, double &f, lbfgs_evaluate_t proc_evalu
   std::unique_ptr<double[], blaze::Deallocate> d_data(blaze::allocate<double>(padded_size));
   BlazeVector d(d_data.get(), n, padded_size);
   std::unique_ptr<double[], blaze::Deallocate> pf_data(blaze::allocate<double>(past_fx_padded_size));
-  BlazeVector pf(pf_data.get(), (std::size_t)param.past, past_fx_padded_size);
+  BlazeVector pf(pf_data.get(), param.past, past_fx_padded_size);
 
   /* Initialize the limited memory. */
   std::unique_ptr<double[], blaze::Deallocate> lm_alpha_data(blaze::allocate<double>(memory_padded_size));
@@ -481,7 +481,9 @@ inline int lbfgs_optimize(BlazeVector &x, double &f, lbfgs_evaluate_t proc_evalu
   fx = cd.proc_evaluate(cd.instance, x, g);
 
   /* Store the initial value of the cost function. */
-  pf[0] = fx;
+  if (param.past > 0) {
+    pf[0] = fx;
+  }
 
   /*
    Compute the direction;
@@ -559,7 +561,7 @@ inline int lbfgs_optimize(BlazeVector &x, double &f, lbfgs_evaluate_t proc_evalu
        The criterion is given by the following formula:
        |f(past_x) - f(x)| / max(1, |f(x)|) < \delta.
        */
-      if (0 < param.past) {
+      if (param.past > 0) {
         /* We don't test the stopping criterion while k < past. */
         if (param.past <= (std::size_t) k) {
           /* The stopping criterion. */

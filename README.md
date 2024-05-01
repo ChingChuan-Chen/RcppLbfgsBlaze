@@ -28,16 +28,16 @@ Below code and corresponding results show that `RcppLbfgsblaze` provides a fast 
     source(system.file("examples", "logisticBenchmark.R", package = "RcppLbfgsBlaze"))
     # logistic model fitting benchmark for n = 10000, p = 100 and non-zero p = 6: nrep = 20
     # Unit: milliseconds
-    #                  expr      min        lq      mean    median        uq       max neval
-    #               glm.fit 261.0691 266.81105 297.08549 285.28720 332.21190  360.8385    20
-    #                 optim  64.2125  66.73465  76.09674  70.72650  75.11450  130.4458    20
-    #            optim_arma  14.6350  16.29500  16.89384  16.58730  17.65345   18.7868    20
-    #        RcppLbfgsBlaze  11.0940  11.39880  12.18345  11.58235  12.32980   17.1177    20
-    #                glmnet  35.5173  36.80800  39.19770  38.45920  40.90995   49.3444    20
-    #                 lbfgs 172.1253 177.55015 364.55791 183.31630 210.26880 1965.5255    20
-    #            lbfgs_arma  38.7453  39.99275 129.23829  41.43080  45.03150 1762.4927    20
-    #  RcppNumerical_fastLR   8.5466   8.92255   9.40195   9.15430   9.52455   13.4580    20
-    #         RcppNumerical   3.4105   3.78210   4.40715   4.30210   4.71540    8.1145    20
+    #                  expr      min        lq       mean    median        uq       max neval
+    #               glm.fit 257.2170 265.93285 293.117575 283.57680 326.71545  340.7858    20
+    #                 optim  61.2161  65.67600  72.287470  68.37055  72.12120  145.2132    20
+    #            optim_arma  15.6136  16.28550  17.508120  17.24370  18.32525   21.6505    20
+    #        RcppLbfgsBlaze  10.8729  11.34015  12.102315  11.75275  12.45615   15.3221    20
+    #                glmnet  37.2798  38.96865 130.402930  40.38960  42.04705 1832.7456    20
+    #                 lbfgs 173.2924 184.05055 468.719820 191.19040 209.56535 5572.6373    20
+    #            lbfgs_arma  40.5532  42.05420  44.566345  44.34010  46.38210   51.1474    20
+    #  RcppNumerical_fastLR   9.2105   9.52110   9.863155   9.68595  10.29325   10.9466    20
+    #         RcppNumerical   3.2204   3.38860   4.044365   3.72145   4.07455    7.9843    20
     ```
 
 Above results are run on my desktop (i9-13900K, DDR5-4000 128GB).
