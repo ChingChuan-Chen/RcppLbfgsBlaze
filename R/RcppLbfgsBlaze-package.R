@@ -24,14 +24,15 @@
 #' The important steps are
 #' \enumerate{
 #' \item Include the \samp{RcppBlaze.h} and \samp{lbfgs.h} header files.
-#' \item Import \code{Rcpp} and \code{RcppBlaze}. LinkingTo \code{Rcpp}, \code{RcppBlaze} and \code{RcppLbfgsBlaze} by adding these lines to the \samp{DESCRIPTION} file:
+#' \item Import \code{Rcpp}. LinkingTo \code{Rcpp}, \code{RcppBlaze} and \code{RcppLbfgsBlaze} by adding these lines to the \samp{DESCRIPTION} file:
 #' \preformatted{
-#'   Imports: Rcpp (>= 1.0.0), RcppBlaze (>= 1.0.0)
-#'   LinkingTo: Rcpp, RcppBlaze, RcppLbfgsBlaze
+#'   Imports: Rcpp (>= 1.0.0)
+#'   LinkingTo: Rcpp, RcppBlaze (>= 1.0.0), RcppLbfgsBlaze
 #' }
 #' \item Link against the \code{BLAS} and \code{LAPACK} libraries, by adding following two lines in the \samp{Makevars} and \samp{Makevars.win} files:
 #' \preformatted{
-#'   PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+#'   PKG_CXXFLAGS=$(SHLIB_OPENMP_CXXFLAGS)
+#'   PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) $(SHLIB_OPENMP_CXXFLAGS)
 #' }
 #' }
 #'

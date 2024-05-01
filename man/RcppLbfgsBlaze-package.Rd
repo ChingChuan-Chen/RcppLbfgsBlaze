@@ -23,14 +23,15 @@ using \strong{RcppLbfgsBlaze}.
 The important steps are
 \enumerate{
 \item Include the \samp{RcppBlaze.h} and \samp{lbfgs.h} header files.
-\item Import \code{Rcpp} and \code{RcppBlaze}. LinkingTo \code{Rcpp}, \code{RcppBlaze} and \code{RcppLbfgsBlaze} by adding these lines to the \samp{DESCRIPTION} file:
+\item Import \code{Rcpp}. LinkingTo \code{Rcpp}, \code{RcppBlaze} and \code{RcppLbfgsBlaze} by adding these lines to the \samp{DESCRIPTION} file:
 \preformatted{
-  Imports: Rcpp (>= 1.0.0), RcppBlaze (>= 1.0.0)
-  LinkingTo: Rcpp, RcppBlaze, RcppLbfgsBlaze
+  Imports: Rcpp (>= 1.0.0)
+  LinkingTo: Rcpp, RcppBlaze (>= 1.0.0), RcppLbfgsBlaze
 }
 \item Link against the \code{BLAS} and \code{LAPACK} libraries, by adding following two lines in the \samp{Makevars} and \samp{Makevars.win} files:
 \preformatted{
-  PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+  PKG_CXXFLAGS=$(SHLIB_OPENMP_CXXFLAGS)
+  PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) $(SHLIB_OPENMP_CXXFLAGS)
 }
 }
 }
@@ -48,6 +49,7 @@ Useful links:
 \itemize{
   \item \url{https://github.com/ChingChuan-Chen/RcppLbfgsBlaze}
   \item \url{https://github.com/ChingChuan-Chen/LBFGS-blaze}
+  \item \url{https://github.com/ZJU-FAST-Lab/LBFGS-Lite}
   \item \url{https://bitbucket.org/blaze-lib/blaze/src/master/}
   \item Report bugs at \url{https://github.com/Chingchuan-chen/RcppLbfgsBlaze/issues}
 }

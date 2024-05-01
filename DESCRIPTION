@@ -1,8 +1,8 @@
 Package: RcppLbfgsBlaze
 Type: Package
-Title: L-BFGS algorithm based on Blaze for R and Rcpp
-Version: 0.0.1
-Date: 2024-05-05
+Title: 'L-BFGS' Algorithm Based on 'Blaze' for 'R' and 'Rcpp'
+Version: 0.1.0
+Date: 2024-05-01
 Authors@R: c(
    person(given = "Ching-Chuan",
            family = "Chen",
@@ -15,9 +15,10 @@ Authors@R: c(
 Maintainer: Ching-Chuan Chen <zw12356@gmail.com>
 URL: https://github.com/ChingChuan-Chen/RcppLbfgsBlaze,
   https://github.com/ChingChuan-Chen/LBFGS-blaze,
+  https://github.com/ZJU-FAST-Lab/LBFGS-Lite,
   https://bitbucket.org/blaze-lib/blaze/src/master/
 BugReports: https://github.com/Chingchuan-chen/RcppLbfgsBlaze/issues
-Description: This package provides an implementation of the 'L-BFGS' algorithm based on 'Blaze' for 'R' and 'Rcpp'. 
+Description: 'RcppLbfgsBlaze' provides an implementation of the 'L-BFGS' algorithm based on 'Blaze' for 'R' and 'Rcpp'. 
   The 'L-BFGS' algorithm is a popular optimization algorithm for unconstrained optimization problems. 
   'Blaze' is a high-performance 'C++' math library for dense and sparse arithmetic. 
   The package provides a simple interface to the 'L-BFGS' algorithm and allows users to optimize 
@@ -25,19 +26,13 @@ Description: This package provides an implementation of the 'L-BFGS' algorithm b
 Depends:
     R (>= 4.2.0)
 Imports:
-    utils,
-    Rcpp (>= 1.0.0),
-    RcppBlaze (>= 1.0.0)
+    Rcpp (>= 1.0.0)
 LinkingTo:
     Rcpp,
-    RcppBlaze
+    RcppBlaze (>= 1.0.0)
 Suggests:
-    microbenchmark,
-    glmnet,
-    lbfgs,
-    RcppArmadillo,
-    RcppNumerical,
-    tinytest
+    tinytest,
+	microbenchmark
 LazyLoad: yes
 Encoding: UTF-8
 License: MIT + file LICENSE

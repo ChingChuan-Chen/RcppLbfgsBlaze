@@ -19,8 +19,8 @@ This function leverage \code{blaze} and \code{LBFGS-Blaze} to efficiently fit lo
 }
 \examples{
 X <- matrix(rnorm(5000), 1000)
-coef <- runif(100, -3, 3)
+coef <- runif(5, -3, 3)
 y <- sapply(1 / (1 + exp(-X \%*\% coef)), function(p) rbinom(1, 1, p), USE.NAMES = FALSE)
 
-fit <- fastLogisticModel(x, y)
+fit <- fastLogisticModel(X, y)
 }

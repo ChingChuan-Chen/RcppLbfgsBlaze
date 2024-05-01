@@ -52,31 +52,31 @@ static double getLogisticLikelihoodGrad(
 //'
 //' @examples
 //' X <- matrix(rnorm(5000), 1000)
-//' coef <- runif(100, -3, 3)
+//' coef <- runif(5, -3, 3)
 //' y <- sapply(1 / (1 + exp(-X %*% coef)), function(p) rbinom(1, 1, p), USE.NAMES = FALSE)
 //'
-//' fit <- fastLogisticModel(x, y)
+//' fit <- fastLogisticModel(X, y)
 //' @export
 // [[Rcpp::export]]
-Rcpp::List fastLogisticModel(Rcpp::NumericMatrix X_, Rcpp::NumericVector y_) {
+Rcpp::List fastLogisticModel(Rcpp::NumericMatrix X, Rcpp::NumericVector y) {
   // initialize coef
-  size_t p = (size_t) X_.ncol();
+  size_t p = (size_t) X.ncol();
   std::size_t p_padded = blaze::nextMultiple<std::size_t>(p, blaze::SIMDTrait<double>::size);
   std::unique_ptr<double[], blaze::Deallocate> coef_data(blaze::allocate<double>(p_padded));
   lbfgs::BlazeVector coef(coef_data.get(), p, p_padded);
   coef = 0.0;
 
   // allocate memory for y
-  size_t n = (size_t) y_.size();
+  size_t n = (size_t) y.size();
   std::size_t n_padded = blaze::nextMultiple<std::size_t>(n, blaze::SIMDTrait<double>::size);
   std::unique_ptr<double[], blaze::Deallocate> y_data(blaze::allocate<double>(n_padded));
-  lbfgs::BlazeVector y(y_data.get(), n, n_padded);
-  RcppBlaze::copyToCustomVector(y_, y);
+  lbfgs::BlazeVector y_(y_data.get(), n, n_padded);
+  RcppBlaze::copyToCustomVector(y, y_);
 
   // allocate memory for X
   std::unique_ptr<double[], blaze::Deallocate> x_data(blaze::allocate<double>(n_padded * p));
-  lbfgs::BlazeMatrix X(x_data.get(), n, p, n_padded);
-  RcppBlaze::copyToCustomMatrix(X_, X);
+  lbfgs::BlazeMatrix X_(x_data.get(), n, p, n_padded);
+  RcppBlaze::copyToCustomMatrix(X, X_);
 
   // Set the minimization parameters
   lbfgs::lbfgs_parameter_t params;
