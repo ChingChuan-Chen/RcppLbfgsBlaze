@@ -23,6 +23,7 @@ If you encounter a bug, please file a reproducible example on [github](https://g
 
 You can refer to the file [logisticBenchmark.R](./inst/examples/logisticBenchmark.R) to find the code.
 Below code and corresponding results show that `RcppLbfgsblaze` provides a fast and efficient algorithm for logistic model fitting.
+In the benchmark, `RcppLbfgsBlaze` is only slower than `RcppNumerical`, but faster than others.
 
     ```R
     source(system.file("examples", "logisticBenchmark.R", package = "RcppLbfgsBlaze"))
@@ -37,6 +38,19 @@ Below code and corresponding results show that `RcppLbfgsblaze` provides a fast 
     #      lbfgs_arma  20.7813  21.87255  23.06615  22.71525  23.43450  29.2101    20
     #   RcppNumerical   8.5511   9.06755   9.81808   9.54100   9.92005  16.1381    20
     #  RcppLbfgsBlaze  10.0476  10.53910  11.26658  11.16235  11.59385  14.2053    20
+    ```
+    
+When the sample size and number of predictors increase, `RcppLbfgsBlaze` will be faster than `RcppNumerical` and others.
+It shows that `RcppLbfgsBlaze` provides relatively fast algorithm comparing to otehrs.
+
+    ```R
+    # logistic model fitting benchmark for n = 50000, p = 500 and non-zero p = 6: nrep = 20
+    # Unit: milliseconds
+    #            expr       min        lq      mean    median        uq       max neval
+    #      optim_arma  547.1768  556.3317  578.6516  576.7488  594.5491  632.7897    20
+    #      lbfgs_arma 1501.6494 1537.9691 1573.0044 1561.6261 1606.5876 1675.4529    20
+    #   RcppNumerical  250.6525  255.3796  263.2894  262.5797  269.0240  286.2630    20
+    #  RcppLbfgsBlaze  150.5987  154.8733  158.7338  156.8559  161.5664  173.0606    20
     ```
 
 Above results are run on my desktop (i9-13900K, DDR5-4000 128GB).
