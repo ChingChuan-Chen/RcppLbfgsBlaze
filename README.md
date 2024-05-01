@@ -28,16 +28,15 @@ Below code and corresponding results show that `RcppLbfgsblaze` provides a fast 
     source(system.file("examples", "logisticBenchmark.R", package = "RcppLbfgsBlaze"))
     # logistic model fitting benchmark for n = 10000, p = 100 and non-zero p = 6: nrep = 20
     # Unit: milliseconds
-    #                  expr      min        lq       mean    median        uq       max neval
-    #               glm.fit 257.2170 265.93285 293.117575 283.57680 326.71545  340.7858    20
-    #                 optim  61.2161  65.67600  72.287470  68.37055  72.12120  145.2132    20
-    #            optim_arma  15.6136  16.28550  17.508120  17.24370  18.32525   21.6505    20
-    #        RcppLbfgsBlaze  10.8729  11.34015  12.102315  11.75275  12.45615   15.3221    20
-    #                glmnet  37.2798  38.96865 130.402930  40.38960  42.04705 1832.7456    20
-    #                 lbfgs 173.2924 184.05055 468.719820 191.19040 209.56535 5572.6373    20
-    #            lbfgs_arma  40.5532  42.05420  44.566345  44.34010  46.38210   51.1474    20
-    #  RcppNumerical_fastLR   9.2105   9.52110   9.863155   9.68595  10.29325   10.9466    20
-    #         RcppNumerical   3.2204   3.38860   4.044365   3.72145   4.07455    7.9843    20
+    #             expr      min        lq       mean    median        uq      max neval
+    #          glm.fit 252.3733 260.56465 272.921020 267.54365 275.75880 342.0555    20
+    #            optim  64.7884  68.37525  74.520170  71.13575  74.64360 139.2025    20
+    #       optim_arma  15.4986  16.22255  16.901825  16.60925  17.91680  18.7066    20
+    #           glmnet  37.5449  40.54650  47.557280  42.83230  46.13685 120.1372    20
+    #            lbfgs 179.8177 191.48075 201.447170 195.58680 206.31010 271.1675    20
+    #       lbfgs_arma  41.6792  45.53480  47.548250  46.85675  49.67780  55.0899    20
+    #    RcppNumerical   9.0517   9.38490   9.985235   9.72375  10.54195  11.3252    20
+    #   RcppLbfgsBlaze  11.4112  12.09620  12.448380  12.40520  12.64770  14.5763    20
     ```
 
 Above results are run on my desktop (i9-13900K, DDR5-4000 128GB).

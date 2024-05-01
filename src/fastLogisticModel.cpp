@@ -15,16 +15,20 @@ struct LogisticData {
   size_t n;
   size_t n_padded;
   size_t p;
-  size_t p_padded;
-  std::unique_ptr<double[], blaze::Deallocate> X_Data;
-  std::unique_ptr<double[], blaze::Deallocate> Y_Data;
+  std::unique_ptr<double[], blaze::Deallocate> x_data;
+  std::unique_ptr<double[], blaze::Deallocate> y_data;
+  std::unique_ptr<double[], blaze::Deallocate> eta_data;
+  std::unique_ptr<double[], blaze::Deallocate> phat_data;
 
   LogisticData(
-    size_t n_, size_t n_padded_, size_t p_, size_t p_padded_,
+    size_t n_, size_t n_padded_, size_t p_,
     std::unique_ptr<double[], blaze::Deallocate> X_ptr,
-    std::unique_ptr<double[], blaze::Deallocate> y_ptr
-  ): n(n_), n_padded(n_padded_), p(p_), p_padded(p_padded_),
-    X_Data(std::move(X_ptr)), Y_Data(std::move(y_ptr)) {}
+    std::unique_ptr<double[], blaze::Deallocate> y_ptr,
+    std::unique_ptr<double[], blaze::Deallocate> eta_ptr,
+    std::unique_ptr<double[], blaze::Deallocate> phat_ptr
+  ): n(n_), n_padded(n_padded_), p(p_),
+  x_data(std::move(X_ptr)), y_data(std::move(y_ptr)),
+  eta_data(std::move(eta_ptr)), phat_data(std::move(phat_ptr)) {}
 };
 
 static double getLogisticLikelihoodGrad(
@@ -33,11 +37,13 @@ static double getLogisticLikelihoodGrad(
   lbfgs::BlazeVector &grad
 ) {
   LogisticData *logisticData = reinterpret_cast<LogisticData*>(instance);
-  lbfgs::BlazeMatrix X((logisticData->X_Data).get(), logisticData->n, logisticData->p, logisticData->n_padded);
-  lbfgs::BlazeVector y((logisticData->Y_Data).get(), logisticData->n, logisticData->n_padded);
-  blaze::DynamicVector<double> eta = blaze::max(blaze::min(X * coef, 30.0), -30.0);
-  blaze::DynamicVector<double> phat = 1/(1 + blaze::exp(-eta));
-  double fx = -blaze::dot(eta, y) - blaze::sum(blaze::log(1 - phat));
+  lbfgs::BlazeMatrix X((logisticData->x_data).get(), logisticData->n, logisticData->p, logisticData->n_padded);
+  lbfgs::BlazeVector y((logisticData->y_data).get(), logisticData->n, logisticData->n_padded);
+  lbfgs::BlazeVector eta((logisticData->eta_data).get(), logisticData->n, logisticData->n_padded);
+  lbfgs::BlazeVector phat((logisticData->phat_data).get(), logisticData->n, logisticData->n_padded);
+  eta = blaze::max(blaze::min(X * coef, 30.0), -30.0);
+  phat = 1.0/(1.0 + blaze::exp(-eta));
+  double fx = -blaze::dot(eta, y) - blaze::sum(blaze::log(1.0 - phat));
   grad = blaze::trans(X) * (phat - y);
   return fx;
 }
@@ -78,20 +84,31 @@ Rcpp::List fastLogisticModel(Rcpp::NumericMatrix X, Rcpp::NumericVector y) {
   lbfgs::BlazeMatrix X_(x_data.get(), n, p, n_padded);
   RcppBlaze::copyToCustomMatrix(X, X_);
 
+  // allocate memory for eta and phat
+  std::unique_ptr<double[], blaze::Deallocate> eta_data(blaze::allocate<double>(n_padded));
+  std::unique_ptr<double[], blaze::Deallocate> phat_data(blaze::allocate<double>(n_padded));
+  lbfgs::BlazeVector eta(eta_data.get(), n, n_padded);
+  lbfgs::BlazeVector phat(phat_data.get(), n, n_padded);
+
   // Set the minimization parameters
   lbfgs::lbfgs_parameter_t params;
   params.delta = 1.0e-5;
 
   // get logistic data
-  LogisticData ld(n, n_padded, p, p_padded, std::move(x_data), std::move(y_data));
+  LogisticData ld(
+      n, n_padded, p, std::move(x_data),
+      std::move(y_data), std::move(eta_data), std::move(phat_data)
+  );
 
   // Start minimization
   double final_value = 0.0;
   int result = lbfgs::lbfgs_optimize(coef, final_value, getLogisticLikelihoodGrad, nullptr, nullptr, &ld, params);
 
   return Rcpp::List::create(
-    _["value"] = final_value,
-    _["par"] = coef,
-    _["lbfgs_result_code"] = result
+    _["coefficients"] = coef,
+    _["fitted.values"] = phat,
+    _["linear.predictors"] = eta,
+    _["loglikelihood"] = -final_value,
+    _["converged"] = result == 0
   );
 }

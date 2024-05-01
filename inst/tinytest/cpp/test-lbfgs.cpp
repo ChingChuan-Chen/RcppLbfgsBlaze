@@ -60,42 +60,6 @@ Rcpp::List test_problem1(Rcpp::NumericVector init) {
   return instance.run(init);
 }
 
-class Problem2 {
-public:
-  Rcpp::List run(Rcpp::NumericVector init) {
-    double final_value;
-
-    // set init vector
-    int n = init.size();
-    std::size_t padded_size = blaze::nextMultiple<std::size_t>(n, blaze::SIMDTrait<double>::size);
-    std::unique_ptr<double[], blaze::Deallocate> data(blaze::allocate<double>(padded_size));
-    lbfgs::BlazeVector x(data.get(), n, padded_size);
-    RcppBlaze::copyToCustomVector(init, x);
-
-    // Set the minimization parameters
-    lbfgs::lbfgs_parameter_t params;
-    params.g_epsilon = 1.0e-8;
-    params.delta = 1.0e-8;
-
-    // Start minimization
-    int result = lbfgs::lbfgs_optimize(x, final_value, cost_function, nullptr, nullptr, this, params);
-
-    return Rcpp::List::create(
-      _["value"] = final_value,
-      _["par"] = x,
-      _["lbfgs_result_code"] = result
-    );
-  }
-
-private:
-  static double cost_function(void *instance, const lbfgs::BlazeVector &x, lbfgs::BlazeVector &g) {
-    double fx = (x[0] + 2 * x[1] - 7) * (x[0] + 2 * x[1] - 7) + (2 * x[0] + x[1] - 5) * (2 * x[0] + x[1] - 5);
-    g[0] = 10 * x[0] + 8 * x[1] - 34;
-    g[1] = 8 * x[0] + 10 * x[1] - 38;
-    return fx;
-  }
-};
-
 // [[Rcpp::export]]
 Rcpp::List test_problem2(Rcpp::NumericVector init) {
   int n = init.size();
@@ -103,10 +67,35 @@ Rcpp::List test_problem2(Rcpp::NumericVector init) {
     Rcpp::stop("The length of init must be 2");
   }
 
-  Problem2 instance;
-  return instance.run(init);
-}
+  // set init vector
+  std::size_t padded_size = blaze::nextMultiple<std::size_t>(n, blaze::SIMDTrait<double>::size);
+  std::unique_ptr<double[], blaze::Deallocate> data(blaze::allocate<double>(padded_size));
+  lbfgs::BlazeVector x(data.get(), n, padded_size);
+  RcppBlaze::copyToCustomVector(init, x);
 
+  // Set objective function
+  const lbfgs::lbfgs_evaluate_t obj_func = [](void* instance, const lbfgs::BlazeVector &x, lbfgs::BlazeVector &g) -> double {
+    double fx = (x[0] + 2 * x[1] - 7) * (x[0] + 2 * x[1] - 7) + (2 * x[0] + x[1] - 5) * (2 * x[0] + x[1] - 5);
+    g[0] = 10 * x[0] + 8 * x[1] - 34;
+    g[1] = 8 * x[0] + 10 * x[1] - 38;
+    return fx;
+  };
+
+  // Set the minimization parameters
+  lbfgs::lbfgs_parameter_t params;
+  params.g_epsilon = 1.0e-8;
+  params.delta = 1.0e-8;
+
+  // Start minimization
+  double final_value;
+  int result = lbfgs::lbfgs_optimize(x, final_value, obj_func, nullptr, nullptr, nullptr, params);
+
+  return Rcpp::List::create(
+    _["value"] = final_value,
+    _["par"] = x,
+    _["lbfgs_result_code"] = result
+  );
+}
 
 class Problem3 {
 public:
