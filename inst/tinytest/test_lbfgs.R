@@ -7,11 +7,18 @@
 ## a copy of MIT License along with RcppLbfgsBlaze.
 ## If not, see https://opensource.org/license/mit.
 
+suppressPackageStartupMessages({
+  require(Rcpp)
+  require(RcppBlaze)
+  require(RcppLbfgsBlaze)
+  require(tinytest)
+})
+
 cppFile <- "test-lbfgs.cpp"
 if (file.exists(file.path("cpp", cppFile))) {
-  Rcpp::sourceCpp(file.path("cpp", cppFile))
+  sourceCpp(file.path("cpp", cppFile))
 } else {
-  Rcpp::sourceCpp(system.file("tinytest", "cpp", cppFile, package = "RcppLbfgsBlaze"))
+  sourceCpp(system.file("tinytest", "cpp", cppFile, package = "RcppLbfgsBlaze"))
 }
 
 problem1_result <- test_problem1(c(-1.2, 1))

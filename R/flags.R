@@ -7,7 +7,15 @@
 ## a copy of MIT License along with RcppLbfgsBlaze.
 ## If not, see https://opensource.org/license/mit.
 
-#' @importFrom Rcpp Rcpp.plugin.maker
+RcppLbfgsBlazeCxxFlags <- function() {
+  paste0('-I"', system.file("include", package = "RcppLbfgsBlaze"), '"')
+}
+
+CxxFlags <- function() cat(RcppLbfgsBlazeCxxFlags())
+
+# Inline plugin used by sourceCpp.
+#' @importFrom Rcpp Rcpp.plugin.maker evalCpp sourceCpp
+#' @importFrom RcppBlaze blaze_version
 inlineCxxPlugin <-  function() {
   openmpFlag <- ifelse(Sys.info()[["sysname"]] == "Darwin", "", "$(SHLIB_OPENMP_CFLAGS)")
   getSettings <- Rcpp.plugin.maker(

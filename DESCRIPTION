@@ -25,13 +25,14 @@ Description: The 'L-BFGS' algorithm is a popular optimization algorithm for unco
 Depends:
     R (>= 4.2.0)
 Imports:
-    Rcpp (>= 1.0.0)
+    Rcpp (>= 1.0.0),
+    RcppBlaze (>= 1.0.0)
 LinkingTo:
     Rcpp,
-    RcppBlaze (>= 1.0.0)
+    RcppBlaze
 Suggests:
     tinytest,
-	microbenchmark
+    microbenchmark
 LazyLoad: yes
 Encoding: UTF-8
 License: MIT + file LICENSE

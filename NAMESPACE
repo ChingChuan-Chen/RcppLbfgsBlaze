@@ -2,4 +2,7 @@
 
 export(fastLogisticModel)
 importFrom(Rcpp,Rcpp.plugin.maker)
+importFrom(Rcpp,evalCpp)
+importFrom(Rcpp,sourceCpp)
+importFrom(RcppBlaze,blaze_version)
 useDynLib(RcppLbfgsBlaze, .registration = TRUE)
